@@ -1,0 +1,18 @@
+# Django folders and files
+static/
+media/
+.env
+
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Celery
+celerybeat-schedule*

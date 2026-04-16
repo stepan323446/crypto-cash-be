@@ -1,0 +1,21 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    volumes:
+      - media/:/app/media
+    
+    command: ["uv", "run", "gunicorn", "config.wsgi:application", "-b", "0.0.0.0:8000"]
+
+    ports:
+      - "127.0.0.1:8000:8000"
+
+    env_file:
+      - ".env"
+    
+
+  redis:
+    container_name: project-redis
+    image: redis:alpine

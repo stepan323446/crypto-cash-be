@@ -1,0 +1,112 @@
+x-app-template: &app-template
+  build:
+    context: .
+    dockerfile: Dockerfile
+    args:
+      USER_ID: ${UID:-1000}
+      GROUP_ID: ${GID:-1000}
+
+  image: crypto_cash:latest
+
+  user: "${UID:-1000}:${GID:-1000}"
+
+  volumes:
+    - .:/app
+    - /app/.venv
+
+  env_file:
+    - ".env"
+
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+    rabbitmq:
+      condition: service_healthy
+
+services:
+  backend:
+    <<: *app-template
+    command: ["uv", "run", "manage.py", "runserver", "0.0.0.0:8000"]
+    ports:
+      - "127.0.0.1:8000:8000"
+
+  celery_worker:
+    <<: *app-template
+    command: ["uv", "run", "celery", "-A", "project.celery", "worker", "--loglevel=info"]
+
+  celery_beat:
+    <<: *app-template
+    command: ["uv", "run", "celery", "-A", "project.celery", "beat", "--loglevel=info"]
+
+  flower:
+    <<: *app-template
+    command: ["uv", "run", "celery", "-A", "project.celery", "flower", "--port=5555"]
+    ports:
+      - "5555:5555"
+      
+    depends_on:
+      - celery_worker
+      - celery_beat
+    
+  db:
+    image: postgres
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_DB: ${POSTGRESQL_DATABASE}
+      POSTGRES_USER: ${POSTGRESQL_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD}
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRESQL_USERNAME} -d $${POSTGRESQL_DATABASE}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+    env_file:
+      - ".env"
+
+    volumes:
+      - pg_data:/var/lib/postgresql
+
+  rabbitmq:
+    image: rabbitmq:4.2.5-management
+    container_name: crypto-rabbitmq
+    restart: always
+
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST}
+
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+    ports:
+      - "15672:15672"
+
+    env_file:
+      - ".env"
+
+
+  redis:
+    container_name: crypto-redis
+    image: redis:alpine
+
+    env_file:
+      - ".env"
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  pg_data:

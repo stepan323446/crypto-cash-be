@@ -1,0 +1,24 @@
+{% extends 'mail/base.html' %}
+{% load mail_tags %}
+
+{% block preheader %}
+To complete your registration and activate your account, please confirm your email address
+{% endblock %}
+
+{% block content %}    
+    {% title_elem "Account Activation" %}
+
+    {% with welcome_msg="Hi "|add:username|add:"! Thanks for signing up for CryptoCash. We're excited to have you on board." %}
+        {% paragraph_elem welcome_msg %}
+    {% endwith %}
+
+    {% paragraph_elem "To complete your registration and activate your account, please click the button below:" %}
+
+    {% button_elem "Activate Account" activation_url %}
+
+    {% meta_elem "Please note: This link is only valid for the next 3 hours. If it expires, you will need to request a new activation link." %}
+{% endblock %}
+
+{% block footer_text %}
+If you didn't create an account, you can safely ignore this email.
+{% endblock %}

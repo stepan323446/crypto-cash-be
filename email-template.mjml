@@ -1,0 +1,86 @@
+<mjml>
+  <mj-head>
+    <mj-font name="Geist" href="https://fonts.googleapis.com/css2?family=Geist"></mj-font>
+    <mj-attributes>
+      <mj-all font-family="Geist, Helvetica, Arial, sans-serif"></mj-all>
+      <mj-text font-weight="400" font-size="16px" color="#ffffff" line-height="22px"></mj-text>
+      <mj-button
+        background-color="#ffffff" 
+        color="#000000"
+        font-size="16px" 
+        font-weight="400"
+        border-radius="8px" 
+        padding="11px 15px"></mj-button>
+    </mj-attributes>
+    <mj-preview>
+      Text that visible only in mail list
+    </mj-preview>
+    <mj-style>
+      .lc-text a { color: #0083CA !important; text-decoration: underline; } 
+      .lc-shadow { border: 1px solid #2C2C2C !important; } 
+      .lc-button td { border: 2px solid #636b63; border-style: dashed; }
+      .lc-primary-color { color: #0083CA; }
+    </mj-style>
+  </mj-head>
+  
+  <mj-body background-color="#050505">
+    <!-- Webview tag -->
+    <mj-section background-color="transparent" padding="20px 0px 20px 0px">
+    </mj-section>
+    
+    <mj-section css-class="lc-shadow" border-radius="5px" background-color="#171717" padding="30px 40px">
+      <mj-column width="100%">
+        <!-- Logo -->
+        <mj-text font-size="16px" font-weight="600">Crypto<span style="color: #0083CA;">Cash</span></mj-text>
+        <!-- Logo END -->
+        
+        <!-- Title -->
+        <mj-text font-size="26px" font-weight="600">Account Activation</mj-text>
+        <mj-spacer height="40px"></mj-spacer>
+        <!-- Title END -->
+        
+        <!-- Image -->
+        <mj-image padding="0px" width="180px" src="https://github.com/ricfreire/mautic-theme-loyalclient/blob/main/assets/gift.png?raw=true"></mj-image>
+        <mj-spacer height="30px"></mj-spacer>
+        <!-- Image END -->
+        
+        <!-- Common text -->
+        <mj-text css-class="lc-text">Since you are one of our loyal customers, we want to show our appreciation for your continued support. We are pleased to offer you the opportunity to purchase anything from our online store at a 20% discount.</mj-text>
+        <!-- Common text END -->
+        
+        <!-- Subtitle -->
+        <mj-text font-size="18px" font-weight="600">Title 2</mj-text>
+        <!-- Subtitle END -->
+        
+        <!-- Common text -->
+        <mj-text css-class="lc-text">Since you are one of our loyal customers, we want to show our appreciation for your continued support. <a href="https://google.com">We are pleased to offer</a> you the opportunity to purchase anything from our online store at a 20% discount.</mj-text>
+        <!-- Common text END -->
+        
+        <mj-button letter-spacing="3px" background-color="#27272A" color="#ffffff" font-size="24px">
+        	GFYS43F
+        </mj-button>
+        
+        <!-- Button Link -->
+        <mj-button href="https://google.com">
+        	Activate account
+        </mj-button>
+        <!-- Button Link END -->
+        
+        <!-- Meta text -->
+        <mj-text padding="0px" align="center" color="#B4B4B4" css-class="lc-text" line-height="22px">Hurry! This promotional code is only valid for 3 days.</mj-text>
+        <!-- Meta text END -->
+        
+        <!-- Footer -->
+        <mj-spacer height="40px"></mj-spacer>
+        <mj-text padding="0px" align="center" color="#fff" line-height="22px">© CryptoCash</mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="transparent" padding="20px 0px 20px 0px">
+      <mj-column>
+        <mj-text font-size="12px" padding="0px" align="center" css-class="lc-text" font-size="14px" line-height="22px">{info_text}</mj-text>
+        <mj-spacer height="8px"></mj-spacer>
+        <mj-text font-size="12px" padding="0px" align="center" css-class="lc-text" font-size="14px" color="#fff" line-height="22px">Some link <a href="https://github.com">Github</a>.</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
