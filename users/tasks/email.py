@@ -6,7 +6,8 @@ from django.utils.html import strip_tags
 from project.settings import (
     EMAIL_HOST_USER,
     FRONTEND_ACTIVATE_USER_TEMPLATE,
-    FRONTEND_RESET_PASS_TEMPLATE
+    FRONTEND_RESET_PASS_TEMPLATE,
+    FRONTEND_CONFIRM_CHANGE_EMAIL_TEMPLATE
 )
 
 @shared_task
@@ -37,6 +38,22 @@ def forgot_pass_email(user_username: str, user_email: str, reset_token):
     text_content = strip_tags(html_content)
 
     msg = EmailMultiAlternatives(subject, text_content, from_email, [user_email])
+    msg.attach_alternative(html_content, "text/html")
+    
+    msg.send()
+
+@shared_task
+def change_new_email(user_username: str, new_user_email: str, confirmation_token: str):
+    subject = 'Confirm Your New Email Address'
+    from_email = EMAIL_HOST_USER
+    
+    url = FRONTEND_CONFIRM_CHANGE_EMAIL_TEMPLATE.format(token=confirmation_token)
+    context = {'username': user_username, 'confirmation_url': url}
+    html_content = render_to_string('users/mail_change_email.html', context)
+    
+    text_content = strip_tags(html_content)
+
+    msg = EmailMultiAlternatives(subject, text_content, from_email, [new_user_email])
     msg.attach_alternative(html_content, "text/html")
     
     msg.send()

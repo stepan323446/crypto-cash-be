@@ -15,7 +15,10 @@ from .views import (
     LoginWithEmailView,
     SendTwoFACodeView,
     ResetPasswordView,
-    ForgotPasswordView
+    ForgotPasswordView,
+    ChangePasswordView,
+    ChangeEmailCompleteView,
+    ChangeEmailView
 )
 
 auth_patterns = [
@@ -27,11 +30,14 @@ auth_patterns = [
     path('send-email-code/', SendTwoFACodeView.as_view(), name="send-email-code-user"),
     path('login-email/', LoginWithEmailView.as_view(), name="login-email-user"),
     path('forgot-password/', ForgotPasswordView.as_view(), name="forgot-password-user"),
-    path('reset-password/', ResetPasswordView.as_view(), name="reset-password-user"),
+    path('reset-password/', ResetPasswordView.as_view(), name="reset-password-user")
 ]
 
 user_patterns = [
-    path('me/', UserInfoView.as_view(), name='user_me'),
+    path('me/', UserInfoView.as_view(), name='user-me'),
+    path('change-password/', ChangePasswordView.as_view(), name='change-password'),
+    path('change-email-request/', ChangeEmailView.as_view(), name='change-email'),
+    path('change-email-complete/', ChangeEmailCompleteView.as_view(), name='change-email-complete'),
     path('create-totp/', CreateTOTPSecretView.as_view(), name='create-totp'),
     path('activate-totp/', ActivateTOTPView.as_view(), name='activate-totp'),
     path('disable-totp/', DisableTOTPView.as_view(), name='disable-totp')

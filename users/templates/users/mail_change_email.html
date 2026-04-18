@@ -1,0 +1,24 @@
+{% extends 'mail/base.html' %}
+{% load mail_tags %}
+
+{% block preheader %}
+Confirm your new email address for your CryptoCash account. Click the link inside to verify.
+{% endblock %}
+
+{% block content %}    
+    {% title_elem "Confirm Your New Email Address" %}
+
+    {% with greeting="Hi "|add:username|add:"," %}
+        {% paragraph_elem greeting %}
+    {% endwith %}
+
+    {% paragraph_elem "You recently requested to change the email address associated with your CryptoCash account. To complete this process and verify your new email, please click the button below:" %}
+
+    {% button_elem "Confirm New Email" confirmation_url %}
+
+    {% meta_elem "Please note: For security reasons, this link will expire in 24 hours. Your account email will not be updated until you click the button above." %}
+{% endblock %}
+
+{% block footer_text %}
+If you did not request this change, please ignore this email or contact our support team if you have concerns about your account security.
+{% endblock %}

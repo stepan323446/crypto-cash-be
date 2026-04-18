@@ -118,15 +118,6 @@ class LoginWithEmailView(APIView):
         serializer = LoginWithEmailSerializer(data=request.data)
 
         serializer.is_valid(raise_exception=True)
-        user = serializer.user
-
-        action_token = UserActionToken.get_action_by_user(
-            user, 
-            UserActionToken.ActionTypes.PASSWORD_RESET
-        )
-
-        if not action_token:
-            action_token = UserActionToken.create_action_token(user, UserActionToken.ActionTypes.PASSWORD_RESET)
 
         return Response(serializer.validated_data)
 

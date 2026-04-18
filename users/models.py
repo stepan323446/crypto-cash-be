@@ -74,15 +74,16 @@ class UserActionToken(UserActionSecret):
     class ActionTypes(models.TextChoices):
         ACTIVATION = 'activation', 'Activation'
         PASSWORD_RESET = 'password_reset', 'Password Reset'
+        EMAIL_CHANGE = 'email_change', 'E-mail change'
 
     token               = models.CharField(max_length=128, unique=True)
     action_type         = models.CharField(max_length=20, choices=ActionTypes.choices)
     value               = models.CharField(max_length=150, null=True, blank=True)
 
     @classmethod
-    def create_action_token(cls, user: User, action: ActionTypes):
+    def create_action_token(cls, user: User, action: ActionTypes, value: str = None):
         token = secrets.token_hex(32)
-        return cls.objects.create(user=user, action_type=action, token=token)
+        return cls.objects.create(user=user, action_type=action, token=token, value=value)
 
     def __str__(self):
         return f'Token {self.action_type} at {self.created_at}'

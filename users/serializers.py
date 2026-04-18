@@ -216,3 +216,30 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'totp_enabled': {'read_only': True}
         }
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password        = serializers.CharField(required=True)
+    new_password        = serializers.CharField(required=True, validators=[validate_password])
+
+    def validate(self, attrs):
+        # Check that old password is not same with new
+        if attrs['old_password'] == attrs['new_password']:
+            raise serializers.ValidationError(
+                {"new_password": "New password must not be same as old."}
+            )
+        
+        return attrs
+        
+class ChangeEmailSerializer(serializers.Serializer):
+    password            = serializers.CharField(required=True, write_only=True)
+    new_email           = serializers.EmailField()
+
+    def validate_new_email(self, value: str):
+        is_email_exists = User.objects.filter(email=value).exists()
+        if is_email_exists:
+            raise serializers.ValidationError("User with this email already exists")
+        
+        return value
+    
+class ChangeEmailCompleteSerializer(serializers.Serializer):
+    token               = serializers.CharField(required=True, validators=[ActionTokenValidator(UserActionToken.ActionTypes.EMAIL_CHANGE)])
