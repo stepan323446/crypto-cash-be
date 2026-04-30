@@ -26,19 +26,35 @@ x-app-template: &app-template
       condition: service_healthy
 
 services:
+  migrate:
+    <<: *app-template
+    command: ["uv", "run", "manage.py", "migrate", "--noinput"]
+
   backend:
     <<: *app-template
     command: ["uv", "run", "manage.py", "runserver", "0.0.0.0:8000"]
     ports:
       - "127.0.0.1:8000:8000"
 
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
   celery_worker:
     <<: *app-template
     command: ["uv", "run", "celery", "-A", "project.celery", "worker", "--loglevel=info"]
 
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
   celery_beat:
     <<: *app-template
     command: ["uv", "run", "celery", "-A", "project.celery", "beat", "--loglevel=info"]
+
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
 
   flower:
     <<: *app-template
@@ -47,8 +63,8 @@ services:
       - "5555:5555"
       
     depends_on:
-      - celery_worker
-      - celery_beat
+      migrate:
+        condition: service_completed_successfully
     
   db:
     image: postgres

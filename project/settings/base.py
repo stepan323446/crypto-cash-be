@@ -35,6 +35,10 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS","127.0.0.1").split(",")
 CORS_ALLOW_ALL_ORIGINS = DEBUG
 CORS_ALLOWED_ORIGINS = os.environ.get("DJANGO_CORS_ALLOWED_ORIGINS","http://127.0.0.1:8000").split(",")
 
+EXCHANGE_RATE_KEY = os.getenv('EXCHANGE_RATE_KEY')
+COINGECKO_API_KEY = os.getenv('COINGECKO_API_KEY')
+COINGECKO_IS_PRO = os.getenv('COINGECKO_IS_PRO', '0') == '1'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -62,6 +66,7 @@ INSTALLED_APPS = [
 
     'users.apps.UsersConfig',
     'mail.apps.MailConfig',
+    'currencies.apps.CurrenciesConfig',
 ]
 
 REST_FRAMEWORK = {

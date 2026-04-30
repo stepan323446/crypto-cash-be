@@ -1,7 +1,6 @@
 import secrets
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
-from django.core.exceptions import PermissionDenied
 from django.db import models
 
 from datetime import timedelta
@@ -16,28 +15,9 @@ class User(AbstractUser):
     lang                 = models.CharField(max_length=10, default="en")
     totp_secret          = models.CharField(max_length=255, blank=True, null=True)
     totp_enabled         = models.BooleanField(default=False)
-    currency: "Currency" = models.ForeignKey("Currency", on_delete=models.SET_DEFAULT, default=1)
 
     def __str__(self):
         return self.username
-    
-class Currency(models.Model):
-    code             = models.CharField(max_length=20, unique=True)
-    name             = models.CharField(max_length=30, blank=True, null=True)
-    symbol           = models.CharField(max_length=5, blank=True, null=True)
-    conversion_rate  = models.FloatField(default=1, verbose_name='Coversion rate (USD to ...)')
-
-    time_created     = models.DateTimeField(auto_now_add=True)
-    time_updated     = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return super().__str__()
-    
-    def delete(self, *args, **kwargs):
-        if self.code == 'USD':
-            raise PermissionDenied("You cannot delete default model USD")
-        
-        return super().delete(*args, **kwargs)
     
 class UserActionSecret(models.Model):
     EXPIRED_THRESHOLD = timedelta(minutes=5)

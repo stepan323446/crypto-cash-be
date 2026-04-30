@@ -7,7 +7,7 @@ from django.db.models import Q
 
 from .utils.otp import verify_totp
 from .utils.twofa import TwoFAToken
-from .models import User, Currency, UserActionToken, UserActionCode
+from .models import User, UserActionToken, UserActionCode
 from .exceptions import AccountNotActivated, AccountToptNoExists
 from .validators import AdultValidator, ActionTokenValidator
 from .mixins import TwoFAValidationMixin
@@ -191,14 +191,8 @@ class TOTPActivationSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-class CurrencySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Currency
-        fields = ('id', 'code', 'name', 'symbol', 'conversion_rate')
-
 class UserSerializer(serializers.ModelSerializer):
     email               = serializers.EmailField(read_only=True)
-    currency_detail     = CurrencySerializer(source="currency", read_only=True)
 
     class Meta:
         model = User
@@ -209,13 +203,8 @@ class UserSerializer(serializers.ModelSerializer):
             'date_of_birth',
             'email',
             'lang',
-            'totp_enabled',
-            'currency',
-            'currency_detail'
+            'totp_enabled'
         )
-        extra_kwargs = {
-            'totp_enabled': {'read_only': True}
-        }
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password        = serializers.CharField(required=True)

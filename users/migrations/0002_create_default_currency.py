@@ -3,23 +3,8 @@
 from django.db import migrations
 
 
-def create_default_currency(apps, schema_editor):
-    Currency = apps.get_model('users', 'Currency')
-    Currency.objects.get_or_create(
-        code='USD',
-        defaults={
-            'name': "American Dollar",
-            'symbol': '$',
-            'conversion_rate': 1.0
-        }
-    )
-
 class Migration(migrations.Migration):
 
     dependencies = [
         ('users', '0001_initial'),
-    ]
-
-    operations = [
-        migrations.RunPython(create_default_currency),
     ]
