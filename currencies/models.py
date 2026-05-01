@@ -4,6 +4,7 @@ from .schemas import (
     StaticExtraDataSchema,
     DynamicExtraDataSchema
 )
+from .managers import CryptoCoinManager, BlockchainAssetManager
 
 # Create your models here.
 class FiatCurrency(models.Model):
@@ -30,11 +31,18 @@ class FiatCurrency(models.Model):
     def __str__(self):
         return f"{self.code} ({self.symbol})"
     
+class CryptoCategory(models.Model):
+    name = models.CharField(max_length=40)
+
+    def __str__(self):
+        return self.name
+
 class CryptoNetwork(models.Model):
     class NetworkTypes(models.TextChoices):
         TON = 'ton', 'TON'
     name            = models.CharField(max_length=20)
     type            = models.CharField(max_length=15, choices=NetworkTypes.choices, unique=True)
+    icon            = models.ImageField('currencies/network/', null=True, blank=True)
     native_asset: "BlockchainAsset" = models.OneToOneField("BlockchainAsset", null=True, blank=True, on_delete=models.SET_NULL, related_name="network_primary_for")
     explorer_url    = models.CharField(max_length=255, null=True, blank=True, help_text="Exporer url with format {address}")
 
@@ -48,6 +56,7 @@ class CryptoCoin(models.Model):
     # static
     name            = models.CharField(max_length=50)
     code            = models.CharField(max_length=15, unique=True, db_index=True)
+    slug            = models.SlugField(max_length=50, unique=True, db_index=True)
     icon            = models.ImageField(null=True, blank=True, upload_to='currencies/coins/')
     coingecko_id    = models.CharField(max_length=40)
     website_urls    = models.TextField(null=True, blank=True, help_text="Website urls (divided by ;)")
@@ -72,6 +81,10 @@ class CryptoCoin(models.Model):
 
     time_created     = models.DateTimeField(auto_now_add=True)
     time_updated     = models.DateTimeField(auto_now=True)
+
+    categories      = models.ManyToManyField(CryptoCategory, related_name='categories')
+
+    objects: CryptoCoinManager["CryptoCoin"] = CryptoCoinManager()
 
     def __str__(self):
         return f"{self.name} ({self.code})"
@@ -100,6 +113,8 @@ class BlockchainAsset(models.Model):
     address         = models.CharField(max_length=255, null=True, blank=True, help_text="Contract address (empty for native)")
     precision       = models.IntegerField()
     coin            = models.ForeignKey(CryptoCoin, null=True, on_delete=models.SET_NULL)
+
+    objects: BlockchainAssetManager['BlockchainAsset'] = BlockchainAssetManager()
 
     class Meta:
         unique_together = ('coin', 'network')

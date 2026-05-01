@@ -1,6 +1,6 @@
 import requests
 from project.settings import EXCHANGE_RATE_KEY, COINGECKO_API_KEY, COINGECKO_IS_PRO
-from .types import ExchangeResultSchema, CoingeckoMarketCoin
+from .schemas import ExchangeResultSchema, CoingeckoMarketCoin
 
 COINGECKO_API_URL = 'https://pro-api.coingecko.com' if COINGECKO_IS_PRO else 'https://api.coingecko.com'
 COINGECKO_HEADER_KEY = 'x-cg-pro-api-key' if COINGECKO_IS_PRO else 'x-cg-demo-api-key'

@@ -1,5 +1,6 @@
 import time
 from celery import shared_task
+from django.utils import timezone
 from currencies.models import CryptoCoin
 
 from currencies.utils import get_coingecko_markets
@@ -13,6 +14,7 @@ def update_crypto_currencies():
 
     per_page = 200
     updated_objs = []
+    current_time = timezone.now()
     for i in range(0, len(gecko_coins_ids), per_page):
         chunk_ids = gecko_coins_ids[i:i + per_page]
 
@@ -28,6 +30,7 @@ def update_crypto_currencies():
             coin.change_24h = gk_coin.price_change_percentage_24h
             coin.market_cap = gk_coin.market_cap
             coin.trading_vol_24h = gk_coin.total_volume
+            coin.time_updated = current_time
 
             history = PriceHistoryPercentage()
             history.percentage_7d = gk_coin.price_change_percentage_7d_in_currency
