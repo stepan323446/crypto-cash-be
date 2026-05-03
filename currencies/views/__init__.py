@@ -4,7 +4,8 @@ from .default import (
     CryptoCoinListView,
     CryptoCoinRetrieveView,
     CryptoCoinRetrieveByIdView,
-    BlockchainAssetListView
+    BlockchainAssetListView,
+    CryptoCoinChartView
 )
 from .admin import (
     CryptoCoinAdminCreateView,

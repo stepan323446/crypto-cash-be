@@ -1,17 +1,23 @@
+from django.core.cache import cache
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from django.shortcuts import get_object_or_404
 
 from rest_framework import filters
+from rest_framework.response import Response
+from rest_framework.request import Request
+from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, RetrieveAPIView
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 
+from currencies.utils.api import get_coingecko_marketchart
 from currencies.filters import CryptoCoinFilter
 from currencies.models import FiatCurrency, CryptoCoin, CryptoCategory, BlockchainAsset
 from currencies.serializers import (
     FiatCurrencySerializer, CryptoCoinShortSerializer,
     CryptoCategorySerializer, CryptoCoinSerializer,
-    BlockchainAssetSerializer
+    BlockchainAssetSerializer, CryptoCoinChartSerializer
 )
 
 
@@ -85,3 +91,70 @@ class BlockchainAssetListView(ListAPIView):
     ordering = ['-id']
     search_fields = ['address', 'network__name']
     filterset_fields = ['coin', 'network']
+
+class CryptoCoinChartView(APIView):
+    @extend_schema(
+        tags=["Crypto"],
+        summary="Get coin market chart data",
+        description=(
+            "Retrieves historical price, market cap, and volume data for a specific coin. "
+            "Returns a list of points where each point is [timestamp, value]."
+        ),
+        parameters=[
+            OpenApiParameter(
+                name='slug',
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                description="The symbol of the cryptocurrency (e.g., 'btc', 'eth')",
+                required=True,
+            ),
+            OpenApiParameter(
+                name='days',
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                description="Data period",
+                enum=['1d', '30d', '90d', '365d', 'max'],
+                default='1d',
+            ),
+        ],
+        responses={200: CryptoCoinChartSerializer}
+    )
+    def get(self, request: Request):
+        # Get params from GET query
+        slug = request.query_params.get('slug')
+        days_param = request.query_params.get('days', '1d')
+
+        # Mapping to coingecko format
+        days_map = {
+            '1d': 1,
+            '30d': 30,
+            '90d': 90,
+            '365d': 365,
+            'max': 'max'
+        }
+
+        if days_param not in days_map:
+            return Response({"error": "Invalid days format"}, status=400)
+
+        # Cache
+        cache_key = f'chart_{slug}_{days_param}'
+        cache_time = 3600 if days_param == '1d' else 21600
+
+        data = cache.get(cache_key)
+
+        if not data:
+            crypto_coin = get_object_or_404(CryptoCoin, slug=slug)
+            gecko_days = days_map[days_param]
+            
+            try:
+                gecko_chart = get_coingecko_marketchart(
+                    coin_id=crypto_coin.coingecko_id,
+                    days=gecko_days
+                )
+                data = gecko_chart.model_dump()
+                cache.set(cache_key, data, timeout=cache_time)
+            except Exception as e:
+                return Response({"error": str(e)}, status=502)
+
+        serializer = CryptoCoinChartSerializer(data)
+        return Response(serializer.data)

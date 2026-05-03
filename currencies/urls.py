@@ -7,7 +7,8 @@ from .views import (
     CryptoCoinRetrieveByIdView,
     CryptoCoinAdminCreateView,
     CryptoCoinAdminRUDView,
-    BlockchainAssetListView
+    BlockchainAssetListView,
+    CryptoCoinChartView
 )
 
 fiat_curr_patterns = [
@@ -18,7 +19,8 @@ crypto = [
     path('coins/<str:slug>/', CryptoCoinRetrieveView.as_view(), name='crypto-coin'),
     path('coins/<int:pk>/', CryptoCoinRetrieveByIdView.as_view(), name='crypto-coin'),
     path('categories/', CryptoCategoryListView.as_view(), name='crypto-categories'),
-    path('blockchain-assets/', BlockchainAssetListView.as_view(), name='blockchain-assets')
+    path('blockchain-assets/', BlockchainAssetListView.as_view(), name='blockchain-assets'),
+    path('coins-chart/', CryptoCoinChartView.as_view(), name='crypto-chart')
 ]
 crypto_admin = [
     path('coins/', CryptoCoinAdminCreateView.as_view(), name='crypto-coin-create'),

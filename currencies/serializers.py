@@ -60,3 +60,12 @@ class CryptoCoinSerializer(serializers.ModelSerializer):
             'categories', 'categories_detail',
             'time_created', 'time_updated'
         )
+
+class CryptoCoinChartSerializer(serializers.Serializer):
+    prices = serializers.JSONField()
+    market_caps = serializers.JSONField()
+    total_volumes = serializers.JSONField()
+    
+    @classmethod
+    def from_pydantic(cls, instance):
+        return cls(instance.__dict__).data

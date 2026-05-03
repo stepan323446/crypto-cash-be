@@ -13,7 +13,7 @@ class ExchangeResultSchema(BaseModel):
     base_code: str
     conversion_rates: dict[str, float]
 
-# https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,notcoin&price_change_percentage=14d,30d
+# https://docs.coingecko.com/reference/coins-markets
 class CoingeckoMarketCoin(BaseModel):
     id: str
     symbol: str
@@ -31,3 +31,9 @@ class CoingeckoMarketCoin(BaseModel):
     price_change_percentage_14d_in_currency: Optional[Decimal] = None
     price_change_percentage_30d_in_currency: Optional[Decimal] = None
     price_change_percentage_1y_in_currency: Optional[Decimal] = None
+
+# https://docs.coingecko.com/reference/coins-id-market-chart
+class CoingeckoMarketChart(BaseModel):
+    prices: list[tuple[int, Decimal]]
+    market_caps: list[tuple[int, Decimal]]
+    total_volumes: list[tuple[int, Decimal]]
