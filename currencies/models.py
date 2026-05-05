@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, ROUND_DOWN
 from django.db import models
 from .schemas import (
     StaticExtraDataSchema,
@@ -40,17 +40,20 @@ class CryptoCategory(models.Model):
 class CryptoNetwork(models.Model):
     class NetworkTypes(models.TextChoices):
         TON = 'ton', 'TON'
+        
     name            = models.CharField(max_length=20)
     type            = models.CharField(max_length=15, choices=NetworkTypes.choices, unique=True)
     icon            = models.ImageField('currencies/network/', null=True, blank=True)
     native_asset: "BlockchainAsset" = models.OneToOneField("BlockchainAsset", null=True, blank=True, on_delete=models.SET_NULL, related_name="network_primary_for")
-    explorer_url    = models.CharField(max_length=255, null=True, blank=True, help_text="Exporer url with format {address}")
+    explorer_url    = models.CharField(max_length=255, null=True, blank=True, help_text="Exporer url with format {tx_hash}")
+
+    service_fee_fixed_usd = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
     def __str__(self):
         return self.name
     
-    def get_address_url(self, address: str):
-        return self.explorer_url.format(address=address)
+    def get_transaction_url(self, tx_hash: str):
+        return self.explorer_url.format(tx_hash=tx_hash)
 
 class CryptoCoin(models.Model):
     # static
@@ -89,6 +92,9 @@ class CryptoCoin(models.Model):
     def __str__(self):
         return f"{self.name} ({self.code})"
     
+    def get_price_amount(self, amount):
+        return self.price * amount
+    
     @property
     def static_metadata(self):
         return StaticExtraDataSchema(**self.static_extra_data)
@@ -114,6 +120,8 @@ class BlockchainAsset(models.Model):
     precision       = models.IntegerField()
     coin            = models.ForeignKey(CryptoCoin, null=True, on_delete=models.SET_NULL)
 
+    service_fee_fixed_usd = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
     objects: BlockchainAssetManager['BlockchainAsset'] = BlockchainAssetManager()
 
     class Meta:
@@ -121,6 +129,29 @@ class BlockchainAsset(models.Model):
 
     def __str__(self):
         return f"{self.coin.code} on {self.network.name}"
+    
+    @property
+    def service_fee_usd(self):
+        fee = self.service_fee_fixed_usd
+        if fee == 0:
+            fee = self.network.service_fee_fixed_usd
+
+        return fee
+    
+    @property
+    def service_fee_by_coin(self):
+        fee_usd = self.service_fee_usd
+        coin_price = self.coin.price
+
+        if not coin_price or coin_price <= 0:
+            return Decimal('0')
+
+        fee_coin = Decimal(str(fee_usd)) / Decimal(str(coin_price))
+        
+        return fee_coin.quantize(
+            Decimal(10) ** -self.precision, 
+            rounding=ROUND_DOWN
+        )
     
     def get_atomic_amount(self, amount: Decimal | float | str) -> int:
         d_amount = Decimal(str(amount)) 

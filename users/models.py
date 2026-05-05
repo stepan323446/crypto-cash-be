@@ -2,6 +2,7 @@ import secrets
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+import random
 
 from datetime import timedelta
 from project.utils.cryptography import generate_random_code
@@ -11,10 +12,28 @@ class User(AbstractUser):
     email                = models.EmailField(unique=True)
     first_name           = models.CharField(max_length=150, blank=False)
     last_name            = models.CharField(max_length=150, blank=False)
+    is_system_user       = models.BooleanField(default=False)
     date_of_birth        = models.DateField(null=True, blank=True)
     lang                 = models.CharField(max_length=10, default="en")
+
     totp_secret          = models.CharField(max_length=255, blank=True, null=True)
     totp_enabled         = models.BooleanField(default=False)
+    memo_id              = models.PositiveIntegerField(unique=True, db_index=True, null=True)
+
+    @classmethod
+    def get_system_user(cls):
+        user = cls.objects.filter(is_system_user=True).first()
+        if not user:
+            raise Exception("System user not found!")
+        
+        return user
+
+    def generate_memo(self):
+        while True:
+            new_memo = random.randint(1000000, 9999999)
+            if not User.objects.filter(memo_id=new_memo).exists():
+                self.memo_id = new_memo
+                break
 
     def __str__(self):
         return self.username

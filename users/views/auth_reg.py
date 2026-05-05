@@ -58,6 +58,7 @@ class ActivateUserView(APIView):
 
             user = user_action.user
             user.is_active = True
+            user.generate_memo()
             user.save()
 
         return Response({

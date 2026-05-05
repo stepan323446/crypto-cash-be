@@ -7,12 +7,13 @@ class CustomPagination(PageNumberPagination):
     page_size_query_param = 'limit'
 
     def get_paginated_response(self, data):
+        current_page_size = self.page.paginator.per_page
         total_items = self.page.paginator.count
-        total_pages = math.ceil(total_items / self.page_size)
+        total_pages = math.ceil(total_items / current_page_size)
 
         return Response({
             'count': total_items,
-            'page_size': self.page_size,
+            'page_size': current_page_size,
             'page': self.page.number,
             'total_pages': total_pages,
             'results': data
